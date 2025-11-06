@@ -10,9 +10,14 @@
         <h1>System Monitor</h1>
         <div id="stats"></div>
         <table id="process-table">
-            <thread>
-                <tr><th>PID</th><th>Name</th><th>CPU%</th><th>Memory%</th></tr>
-            </thread>
+            <thead>
+                <tr>
+                    <th data-column="pid" onclick="sortBy('pid')">PID</th>
+                    <th data-column="name" onclick="sortBy('name')">Name</th>
+                    <th data-column="cpu_percent" onclick="sortBy('cpu_percent')">CPU%</th>
+                    <th data-column="memory_percent" onclick="sortBy('memory_percent')">Memory%</th>
+                </tr>
+            </thead>
             <tbody></tbody>
         </table>
 

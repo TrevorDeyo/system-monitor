@@ -27,3 +27,25 @@ th:first-child, td:first-child,
 th:nth-child(2), td:nth-child(2) {
   text-align: left;
 }
+th {
+  position: relative;
+  cursor: pointer;
+  color: #9beaff;
+  padding-right: 15px;
+}
+
+th:hover {
+  color: #ffffff;
+  text-shadow: 0 0 8px #00eaff;
+}
+
+/* Sorting arrows */
+th.sort-asc::after {
+  content: " ▲";
+  color: #4de3ff;
+}
+
+th.sort-desc::after {
+  content: " ▼";
+  color: #4de3ff;
+}

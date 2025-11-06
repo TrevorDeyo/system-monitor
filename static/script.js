@@ -1,3 +1,26 @@
+let sortColumn = "cpu_percent";
+let sortDirection = "desc";
+
+function sortBy(column) {
+  if (sortColumn === column) {
+    sortDirection = sortDirection === "asc" ? "desc" : "asc";
+  } else {
+    sortColumn = column;
+    sortDirection = "desc";
+  }
+  updateSortArrows();
+  refresh(); // re-fetch & re-render table
+}
+
+function updateSortArrows() {
+  document.querySelectorAll("th").forEach(th => {
+    th.classList.remove("sort-asc", "sort-desc");
+    if (th.getAttribute("data-column") === sortColumn) {
+      th.classList.add(sortDirection === "asc" ? "sort-asc" : "sort-desc");
+    }
+  });
+}
+
 const cpuData = [];
 const memData = [];
 const labels = [];
@@ -11,15 +34,37 @@ const chart = new Chart(ctx, {
   data: {
     labels,
     datasets: [
-      { label: 'CPU %', data: cpuData, borderColor: 'rgb(255,99,132)', tension: 0.3 },
-      { label: 'Memory %', data: memData, borderColor: 'rgb(54,162,235)', tension: 0.3 }
+      { 
+        label: 'CPU %', 
+        data: cpuData, 
+        borderColor: 'rgb(255,99,132)',
+        tension: 0.4,            // <-- smooth line curve
+        fill: false
+      },
+      { 
+        label: 'Memory %', 
+        data: memData, 
+        borderColor: 'rgb(54,162,235)',
+        tension: 0.4,            // <-- smooth line curve
+        fill: false
+      }
     ]
   },
   options: {
-    scales: { y: { min: 0, max: 100, ticks: { color: '#aaa' } }, x: { ticks: { color: '#aaa' } } },
-    plugins: { legend: { labels: { color: '#ddd' } } }
+    animation: {
+      duration: 600,            // <-- smooth transition timing
+      easing: 'easeOutQuad'     // <-- smooth easing curve
+    },
+    scales: { 
+      y: { min: 0, max: 100, ticks: { color: '#aaa' } },
+      x: { ticks: { color: '#aaa' } }
+    },
+    plugins: { 
+      legend: { labels: { color: '#ddd' } }
+    }
   }
 });
+
 
 async function fetchStats() {
   const res = await fetch("/stats");
@@ -44,13 +89,20 @@ async function fetchStats() {
     cpuData.shift(); memData.shift(); labels.shift();
   }
 
-  chart.update();
+  chart.update('active');
 }
 
 async function fetchProcesses() {
   const res = await fetch("/processes?limit=10&sort_by=cpu");
   if (!res.ok) return;
   const data = await res.json();
+
+  data.sort((a, b) => {
+    const valA = a[sortColumn];
+    const valB = b[sortColumn];
+    return sortDirection === "asc" ? valA - valB : valB - valA;
+  });
+
   const tbody = document.querySelector("#process-table tbody");
   tbody.innerHTML = data.map(
     p => `<tr>

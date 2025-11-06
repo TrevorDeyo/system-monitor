@@ -20,14 +20,18 @@ def get_stats():
     }
     return stats
 
-@app.get("/processes")
-def get_top_processes(limit: int = 5, sort_by: str = "cpu"):
+cpu_count = psutil.cpu_count(logical=True)
 
+@app.get("/processes")
+def get_top_processes(limit: int = 10, sort_by: str = "cpu"):
     processes = []
 
     for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent']):
         try:
             info = proc.info
+            # Normalize CPU usage like task manager
+            raw_cpu = info.get('cpu_percent') or 0.0
+            info['cpu_percent'] = round(raw_cpu / cpu_count, 1)
             # needed to round so it didn't do this "memory_percent": 0.000023897951921622
             info['memory_percent'] = round(info.get('memory_percent') or 0.0, 1)
             processes.append(info)
