@@ -13,9 +13,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-
 app = FastAPI()
-
 
 # ---------------------------------------------------------
 # Utility: Resolve correct path for static resources.
